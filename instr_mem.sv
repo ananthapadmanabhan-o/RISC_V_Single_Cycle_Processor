@@ -1,4 +1,4 @@
-module (
+module instr_mem (
 	input [31:0] addr,
 	output [31:0] instr
 );
