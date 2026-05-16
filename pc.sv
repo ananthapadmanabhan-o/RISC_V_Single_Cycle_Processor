@@ -1,8 +1,8 @@
 module pc (
 	input clk,
 	input rst,
-	input [31:0] pc_next,
-	output [31:0] pc_out
+	input logic [31:0] pc_next,
+	output logic [31:0] pc_out
 );
 
 always_ff @(posedge clk) begin

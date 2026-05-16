@@ -14,7 +14,7 @@ localparam OPCODE_BRANCH = 7'b1100011;
 always_comb begin
 	case (opcode) 
 		OPCODE_ITYPE,OPCODE_LOAD: imm_out = {{21{instr[31]}},instr[30:20]};
-		OPCODE_STORE: imm_out = {{21{inst[31]}},instr[30:25],instr[11:7]};
+		OPCODE_STORE: imm_out = {{21{instr[31]}},instr[30:25],instr[11:7]};
 		OPCODE_BRANCH: imm_out = {{20{instr[31]}},instr[7],instr[30:25],instr[11:8],1'b0};
 		default: imm_out = 32'd0;
 	endcase

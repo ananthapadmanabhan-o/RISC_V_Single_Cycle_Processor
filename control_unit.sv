@@ -67,6 +67,16 @@ always_comb begin
             branch = 1'b1;
             alu_op = ALU_SUB;
         end
+        
+        default: begin
+            reg_write = 1'b0;
+            alu_src   = 1'b0;
+            mem_read  = 1'b0;
+            mem_write = 1'b0;
+            branch    = 1'b0;
+            alu_op    = ALU_ADD;
+        
+        end
 
     endcase
 end

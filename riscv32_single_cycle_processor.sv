@@ -1,8 +1,16 @@
 module riscv32_single_cycle_processor (
 	input logic clk,
-	input logic rst
+	input logic rst,
+	
+	output logic [31:0] pc_debug,
+    output logic [31:0] alu_debug,
+    output logic [31:0] wb_debug
 );
 
+
+assign pc_debug  = pc_out;
+assign alu_debug = alu_result;
+assign wb_debug  = writeback_data;
 
 
 //////////////////////////////////////////////////////////////////
@@ -127,6 +135,7 @@ reg_file reg_file_inst (
 // Data Memory logic
 //////////////////////////////////////////////////////////////////
 
+logic [31:0] alu_result;
 
 
 logic [31:0] read_data;
@@ -156,7 +165,6 @@ assign alu_b = (alu_src) ? imm_out: rs2_data;
 // ALU logic
 //////////////////////////////////////////////////////////////////
 
-logic [31:0] alu_result;
 logic zero;
 
 
