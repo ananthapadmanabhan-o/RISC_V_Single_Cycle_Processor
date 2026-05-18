@@ -88,7 +88,7 @@ logic alu_src;
 logic mem_read;
 logic mem_write;
 logic branch;
-logic [2:0] alu_op;
+logic [3:0] alu_op;
 
 
 control_unit control_unit_inst (

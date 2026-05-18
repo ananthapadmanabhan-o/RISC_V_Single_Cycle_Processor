@@ -8,7 +8,7 @@ module control_unit (
     output logic       mem_read,
     output logic       mem_write,
     output logic       branch,
-    output logic [2:0] alu_op
+    output logic [3:0] alu_op
 );
 
 localparam OPCODE_RTYPE  = 7'b0110011;
@@ -17,10 +17,18 @@ localparam OPCODE_LOAD   = 7'b0000011;
 localparam OPCODE_STORE  = 7'b0100011;
 localparam OPCODE_BRANCH = 7'b1100011;
 
-localparam ALU_ADD = 3'b000;
-localparam ALU_SUB = 3'b001;
-localparam ALU_AND = 3'b010;
-localparam ALU_OR  = 3'b011;
+localparam ALU_ADD 		= 4'b0000;
+localparam ALU_SUB 		= 4'b0001;
+localparam ALU_XOR_OP 	= 4'b0010;
+localparam ALU_OR_OP 	= 4'b0011;
+localparam ALU_AND_OP 	= 4'b0100;
+localparam ALU_SLL 		= 4'b0101;
+localparam ALU_SRL 		= 4'b0110;
+localparam ALU_SRA		= 4'b0111;
+localparam ALU_SLT 		= 4'b1000;
+localparam ALU_SLTU		= 4'b1001;
+
+
 
 always_comb begin
     reg_write = 1'b0;
@@ -38,8 +46,14 @@ always_comb begin
             case ({funct7, funct3})
                 10'b0000000_000: alu_op = ALU_ADD;
                 10'b0100000_000: alu_op = ALU_SUB;
-                10'b0000000_111: alu_op = ALU_AND;
-                10'b0000000_110: alu_op = ALU_OR;
+                10'b0000000_100: alu_op = ALU_XOR_OP;
+                10'b0000000_110: alu_op = ALU_OR_OP;
+                10'b0000000_111: alu_op = ALU_AND_OP;
+                10'b0000000_001: alu_op = ALU_SLL;
+                10'b0000000_101: alu_op = ALU_SRL;
+                10'b0100000_101: alu_op = ALU_SRA;
+                10'b0000000_010: alu_op = ALU_SLT;
+                10'b0000000_011: alu_op = ALU_SLTU;
                 default:         alu_op = ALU_ADD;
             endcase
         end
