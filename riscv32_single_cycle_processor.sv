@@ -85,8 +85,9 @@ logic reg_write;
 logic alu_src;
 logic mem_read;
 logic mem_write;
-logic branch;
+logic branch_en;
 logic [3:0] alu_op;
+logic [2:0] branch_type;
 
 
 control_unit control_unit_inst (
@@ -98,8 +99,10 @@ control_unit control_unit_inst (
     .alu_src(alu_src),
     .mem_read(mem_read),
     .mem_write(mem_write),
-    .branch(branch),
-    .alu_op(alu_op)
+    .branch_en(branch_en),
+    .alu_op(alu_op),
+    .branch_type(branch_type)
+
 );
 
 
@@ -187,15 +190,35 @@ assign writeback_data = (mem_read) ? read_data: alu_result;
 //////////////////////////////////////////////////////////////////
 // Branch logic
 //////////////////////////////////////////////////////////////////
-logic branch_taken;
+localparam BR_EQ    = 3'b000;
+localparam BR_NE    = 3'b001;
+localparam BR_LT    = 3'b010;
+localparam BR_GE    = 3'b011;
+localparam BR_LTU   = 3'b100;
+localparam BR_GEU   = 3'b101;
 
-assign branch_taken = branch && zero;
+logic branch_valid;
+logic branch;
+
+always_comb begin
+ case(branch_type)
+    BR_EQ  : branch =  zero;
+    BR_NE  : branch = ~zero;
+    BR_LT  : branch = ~zero;
+    BR_GE  : branch =  zero;
+    BR_LTU : branch = ~zero;
+    BR_GEU : branch =  zero;
+    default : branch = 1'b0;
+ endcase
+end
+
+assign branch_valid = branch_en && branch;
 
 //////////////////////////////////////////////////////////////////
 // Branch logic 
 //////////////////////////////////////////////////////////////////
 
-assign pc_next = (branch_taken) ? (pc_out + imm_out) : (pc_out + 32'd4);
+assign pc_next = (branch_valid) ? (pc_out + imm_out) : (pc_out + 32'd4);
 
 
 

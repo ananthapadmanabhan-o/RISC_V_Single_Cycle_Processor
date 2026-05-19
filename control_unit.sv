@@ -7,8 +7,9 @@ module control_unit (
     output logic       alu_src,
     output logic       mem_read,
     output logic       mem_write,
-    output logic       branch,
-    output logic [3:0] alu_op
+    output logic       branch_en,
+    output logic [3:0] alu_op,
+    output logic [2:0] branch_type
 );
 
 localparam OPCODE_RTYPE  = 7'b0110011;
@@ -28,6 +29,14 @@ localparam ALU_SRA		= 4'b0111;
 localparam ALU_SLT 		= 4'b1000;
 localparam ALU_SLTU		= 4'b1001;
 
+localparam BR_EQ    = 3'b000;
+localparam BR_NE    = 3'b001;
+localparam BR_LT    = 3'b010;
+localparam BR_GE    = 3'b011;
+localparam BR_LTU   = 3'b100;
+localparam BR_GEU   = 3'b101;
+
+
 
 
 always_comb begin
@@ -35,9 +44,9 @@ always_comb begin
     alu_src   = 1'b0;
     mem_read  = 1'b0;
     mem_write = 1'b0;
-    branch    = 1'b0;
+    branch_en    = 1'b0;
     alu_op    = ALU_ADD;
-
+    branch_type = 3'b111;
     case (opcode)
         OPCODE_RTYPE: begin
             reg_write = 1'b1;
@@ -92,8 +101,37 @@ always_comb begin
         end
 
         OPCODE_BRANCH: begin
-            branch = 1'b1;
-            alu_op = ALU_SUB;
+            branch_en = 1'b1;
+            case(funct3)
+                3'b000: begin
+                    alu_op = ALU_SUB;
+                    branch_type = BR_EQ;
+                end
+                3'b001: begin
+                    alu_op = ALU_SUB;
+                    branch_type = BR_NE;
+                end
+                3'b100: begin
+                    alu_op = ALU_SLT;
+                    branch_type = BR_LT;
+                end
+                3'b101: begin
+                    alu_op = ALU_SLT;
+                    branch_type = BR_GE;
+                end
+                3'b110: begin 
+                    alu_op = ALU_SLTU;
+                    branch_type = BR_LTU;
+                end
+                3'b111: begin 
+                    alu_op = ALU_SLTU;
+                    branch_type = BR_GEU;
+                end
+                default: begin
+                    alu_op = ALU_ADD;
+                    branch_type = 3'b111;
+                end
+            endcase            
         end
         
         default: begin
@@ -101,9 +139,9 @@ always_comb begin
             alu_src   = 1'b0;
             mem_read  = 1'b0;
             mem_write = 1'b0;
-            branch    = 1'b0;
+            branch_en = 1'b0;
             alu_op    = ALU_ADD;
-        
+            branch_type = 3'b111;
         end
 
     endcase
