@@ -2,15 +2,10 @@ module riscv32_single_cycle_processor (
 	input logic clk,
 	input logic rst,
 	
-	output logic [31:0] pc_debug,
-    output logic [31:0] alu_debug,
-    output logic [31:0] wb_debug
+	output logic [31:0] pc_debug
 );
 
 
-assign pc_debug  = pc_out;
-assign alu_debug = alu_result;
-assign wb_debug  = writeback_data;
 
 
 //////////////////////////////////////////////////////////////////
@@ -26,6 +21,9 @@ pc pc_inst (
 	.pc_next(pc_next),
 	.pc_out(pc_out)
 );
+
+assign pc_debug  = pc_out;
+
 
 //////////////////////////////////////////////////////////////////
 // Instruction Memory logic

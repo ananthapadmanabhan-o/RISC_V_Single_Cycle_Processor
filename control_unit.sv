@@ -39,7 +39,6 @@ always_comb begin
     alu_op    = ALU_ADD;
 
     case (opcode)
-
         OPCODE_RTYPE: begin
             reg_write = 1'b1;
             alu_src   = 1'b0;
@@ -61,7 +60,22 @@ always_comb begin
         OPCODE_ITYPE: begin
             reg_write = 1'b1;
             alu_src   = 1'b1;
-            alu_op    = ALU_ADD;
+            case (funct3)
+                3'b000: alu_op = ALU_ADD;
+                3'b100: alu_op = ALU_XOR_OP;
+                3'b110: alu_op = ALU_OR_OP;
+                3'b111: alu_op = ALU_AND_OP;
+                3'b001: alu_op = ALU_SLL;
+                3'b101: begin
+                    if (funct7 == 7'b0000000)
+                        alu_op = ALU_SRL;
+                    else if (funct7 == 7'b0100000)
+                        alu_op = ALU_SRA;
+                end
+                3'b010: alu_op = ALU_SLT;
+                3'b011: alu_op = ALU_SLTU;
+                default:alu_op = ALU_ADD;
+            endcase
         end
 
         OPCODE_LOAD: begin
