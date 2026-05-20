@@ -88,6 +88,8 @@ logic mem_write;
 logic branch_en;
 logic [3:0] alu_op;
 logic [2:0] branch_type;
+logic jump;
+logic jump_lr;
 
 
 control_unit control_unit_inst (
@@ -101,8 +103,9 @@ control_unit control_unit_inst (
     .mem_write(mem_write),
     .branch_en(branch_en),
     .alu_op(alu_op),
-    .branch_type(branch_type)
-
+    .branch_type(branch_type),
+    .jump(jump),
+    .jump_lr(jump_lr)
 );
 
 
@@ -184,7 +187,9 @@ alu alu_inst (
 //////////////////////////////////////////////////////////////////
 
 
-assign writeback_data = (mem_read) ? read_data: alu_result;
+assign writeback_data = (jump||jump_lr) ? (pc_out + 32'd4):
+                        (mem_read) ? read_data: 
+                        alu_result;
 
 
 //////////////////////////////////////////////////////////////////
@@ -218,7 +223,10 @@ assign branch_valid = branch_en && branch;
 // Branch logic 
 //////////////////////////////////////////////////////////////////
 
-assign pc_next = (branch_valid) ? (pc_out + imm_out) : (pc_out + 32'd4);
+assign pc_next =    (jump_lr) ? (alu_result & ~32'd1):
+                    (jump)    ? (pc_out + imm_out):
+                    (branch_valid) ? (pc_out + imm_out) : 
+                    (pc_out + 32'd4);
 
 
 

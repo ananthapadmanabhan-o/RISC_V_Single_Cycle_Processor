@@ -9,14 +9,19 @@ module control_unit (
     output logic       mem_write,
     output logic       branch_en,
     output logic [3:0] alu_op,
-    output logic [2:0] branch_type
+    output logic [2:0] branch_type,
+    output logic       jump,
+    output logic       jump_lr
 );
 
-localparam OPCODE_RTYPE  = 7'b0110011;
-localparam OPCODE_ITYPE  = 7'b0010011;
-localparam OPCODE_LOAD   = 7'b0000011;
-localparam OPCODE_STORE  = 7'b0100011;
-localparam OPCODE_BRANCH = 7'b1100011;
+localparam OPCODE_RTYPE     = 7'b0110011;
+localparam OPCODE_ITYPE     = 7'b0010011;
+localparam OPCODE_LOAD      = 7'b0000011;
+localparam OPCODE_STORE     = 7'b0100011;
+localparam OPCODE_BRANCH    = 7'b1100011;
+localparam OPCODE_JUMP      = 7'b1101111;
+localparam OPCODE_JUMP_LR   = 7'b1100111;
+
 
 localparam ALU_ADD 		= 4'b0000;
 localparam ALU_SUB 		= 4'b0001;
@@ -35,6 +40,7 @@ localparam BR_LT    = 3'b010;
 localparam BR_GE    = 3'b011;
 localparam BR_LTU   = 3'b100;
 localparam BR_GEU   = 3'b101;
+localparam BR_NONE  = 3'b111;
 
 
 
@@ -44,9 +50,11 @@ always_comb begin
     alu_src   = 1'b0;
     mem_read  = 1'b0;
     mem_write = 1'b0;
-    branch_en    = 1'b0;
+    branch_en = 1'b0;
+    jump      = 1'b0;
+    jump_lr   = 1'b0;
     alu_op    = ALU_ADD;
-    branch_type = 3'b111;
+    branch_type = BR_NONE;
     case (opcode)
         OPCODE_RTYPE: begin
             reg_write = 1'b1;
@@ -80,6 +88,8 @@ always_comb begin
                         alu_op = ALU_SRL;
                     else if (funct7 == 7'b0100000)
                         alu_op = ALU_SRA;
+                    else 
+                        alu_op = ALU_ADD;
                 end
                 3'b010: alu_op = ALU_SLT;
                 3'b011: alu_op = ALU_SLTU;
@@ -134,14 +144,28 @@ always_comb begin
             endcase            
         end
         
+        OPCODE_JUMP: begin
+            jump = 1'b1;
+            reg_write = 1'b1;
+        end
+        
+        OPCODE_JUMP_LR: begin 
+            reg_write = 1'b1;
+            jump_lr = 1'b1;
+            alu_src = 1'b1;
+            alu_op  = ALU_ADD;            
+        end
+        
         default: begin
             reg_write = 1'b0;
             alu_src   = 1'b0;
             mem_read  = 1'b0;
             mem_write = 1'b0;
             branch_en = 1'b0;
+            jump      = 1'b0;
+            jump_lr   = 1'b0;
             alu_op    = ALU_ADD;
-            branch_type = 3'b111;
+            branch_type = BR_NONE;
         end
 
     endcase
